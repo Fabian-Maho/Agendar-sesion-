@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Centro Terapéutico Integral</title>
+<style>
+:root{
+  --primary:#2C5E50; --secondary:#E8F3F1; --accent:#D4A373;
+  --text:#333333; --bg:#F9FBFB; --card-bg:#ffffff; --border:#E0E6E4; --danger:#B3261E;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){--primary:#5FA98D;--secondary:#1B2C27;--accent:#D4A373;--text:#EDEFEE;--bg:#14201C;--card-bg:#1C2B26;--border:#2C3E38;}
+}
+:root[data-theme="dark"]{--primary:#5FA98D;--secondary:#1B2C27;--accent:#D4A373;--text:#EDEFEE;--bg:#14201C;--card-bg:#1C2B26;--border:#2C3E38;}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+*{box-sizing:border-box;}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:var(--bg);color:var(--text);margin:0;min-height:100%;}
+header{background:var(--primary);color:#fff;padding:1.2rem 1rem;text-align:center;padding-top:calc(1.2rem + env(safe-area-inset-top,0px));}
+header h1{margin:0 0 .3rem;font-size:1.4rem;}
+header p{margin:0;opacity:.9;font-size:.85rem;}
+.container{max-width:780px;margin:1.2rem auto;padding:0 1rem 2rem;}
+.card-panel{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:1.4rem;box-shadow:0 4px 15px rgba(0,0,0,.05);margin-bottom:1rem;}
+.hidden{display:none !important;}
+button{background:var(--primary);color:#fff;border:none;padding:.7rem 1.2rem;border-radius:8px;cursor:pointer;font-size:.95rem;margin-top:.6rem;margin-right:.5rem;}
+button:hover{filter:brightness(1.1);}
+button.secondary{background:#666;}
+button.danger{background:var(--danger);}
+button:disabled{background:#aaa;cursor:not-allowed;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+@media (max-width:480px){.grid2{grid-template-columns:1fr;}}
+.option-card{border:2px solid var(--border);padding:1.2rem;border-radius:10px;text-align:center;cursor:pointer;transition:.2s;background:var(--card-bg);}
+.option-card:hover{border-color:var(--primary);background:var(--secondary);}
+label{display:block;margin-top:.85rem;font-weight:600;font-size:.9rem;}
+input,select,textarea{width:100%;padding:.65rem;margin-top:.3rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:.95rem;}
+.slots{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.5rem;}
+.slot-btn{padding:.45rem .85rem;border:1px solid var(--primary);border-radius:20px;background:var(--card-bg);color:var(--primary);cursor:pointer;font-size:.85rem;}
+.slot-btn.selected{background:var(--primary);color:#fff;}
+.slot-btn:disabled{opacity:.35;cursor:not-allowed;text-decoration:line-through;}
+.summary-box{background:var(--secondary);padding:.9rem;border-left:4px solid var(--primary);border-radius:6px;margin-top:.7rem;overflow-x:auto;font-size:.9rem;}
+.pill{display:inline-block;background:var(--secondary);color:var(--primary);padding:.15rem .55rem;border-radius:12px;font-size:.75rem;margin-left:.3rem;}
+.day-toggle{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.4rem;}
+.day-chip{padding:.4rem .8rem;border:1px solid var(--border);border-radius:20px;cursor:pointer;font-size:.82rem;background:var(--card-bg);}
+.day-chip.active{background:var(--primary);color:#fff;border-color:var(--primary);}
+.muted{color:var(--text);opacity:.65;font-size:.82rem;}
+.top-actions{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;}
+.tabs{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem;}
+.tab-btn{background:var(--secondary);color:var(--primary);}
+.tab-btn.active{background:var(--primary);color:#fff;}
+.legal{max-height:340px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:1rem;font-size:.85rem;background:var(--bg);}
+.legal h4{margin-top:1rem;}
+.error-text{color:var(--danger);font-size:.85rem;margin-top:.3rem;}
+.cap-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-top:.4rem;}
+.cap-fill{height:100%;background:var(--primary);}
+footer{text-align:center;padding:1rem;font-size:.78rem;opacity:.6;}
+footer a{color:var(--primary);}
+</style>
+</head>
+<body>
+<header>
+  <h1>Centro Terapéutico Integral</h1>
+  <p>Mahō Terapias · Bienestar físico, mental y sistémico</p>
+</header>
+<div class="container" id="app">
+
+<section id="screen-role" class="card-panel">
+  <h2>¿Cómo deseas ingresar hoy?</h2>
+  <div class="grid2">
+    <div class="option-card" onclick="showScreen('client-menu')"><h3>Cliente / Consultante</h3><p class="muted">Agenda tu sesión o solicita una gira.</p></div>
+    <div class="option-card" onclick="goStaffEntry()"><h3>Personal (Terapeuta / Admin)</h3><p class="muted">Inicia sesión o regístrate.</p></div>
+  </div>
+  <p class="muted" style="margin-top:1rem;">Al usar esta plataforma aceptas nuestros <a href="#" onclick="showScreen('terms');return false;">Términos y Condiciones</a>.</p>
+</section>
+
+<section id="screen-setup-super" class="card-panel hidden">
+  <h2>Configuración inicial · Súper Usuario</h2>
+  <p class="muted">Esta cuenta es única, tiene el mayor nivel de control de la plataforma y no puede duplicarse. Regístrala solo tú.</p>
+  <form onsubmit="createSuperUser(event)">
+    <label>Nombre completo</label><input type="text" id="suName" required>
+    <label>Usuario</label><input type="text" id="suUser" required autocomplete="off">
+    <label>Contraseña (mínimo 8 caracteres, letras y números)</label><input type="password" id="suPass" required>
+    <label>Confirmar contraseña</label><input type="password" id="suPass2" required>
+    <div id="suError" class="error-text hidden"></div>
+    <label style="display:flex;gap:.5rem;align-items:center;font-weight:400;"><input type="checkbox" id="suTerms" style="width:auto;" required> Acepto los <a href="#" onclick="showScreen('terms');return false;">Términos y Condiciones</a></label>
+    <button type="submit">Crear súper usuario</button>
+  </form>
+</section>
+
+<section id="screen-staff-auth" class="card-panel hidden">
+  <div class="top-actions"><h2>Acceso de Personal</h2><button class="secondary" onclick="showScreen('role')">Regresar</button></div>
+  <div class="tabs">
+    <button class="tab-btn active" id="tabLoginBtn" onclick="switchAuthTab('login')">Iniciar sesión</button>
+    <button class="tab-btn" id="tabRegisterBtn" onclick="switchAuthTab('register')">Registrarme</button>
+  </div>
+  <form id="loginForm" onsubmit="doLogin(event)">
+    <label>Usuario</label><input type="text" id="loginUser" required autocomplete="off">
+    <label>Contraseña</label><input type="password" id="loginPass" required>
+    <div id="loginError" class="error-text hidden"></div>
+    <button type="submit">Entrar</button>
+  </form>
+  <form id="registerForm" class="hidden" onsubmit="doRegister(event)">
+    <label>Nombre completo</label><input type="text" id="regName" required>
+    <label>Rol solicitado</label>
+    <select id="regRole" onchange="updateCapacityNote()" required>
+      <option value="terapeuta">Terapeuta</option>
+      <option value="admin">Administrador</option>
+    </select>
+    <p class="muted" id="capNote"></p>
+    <label>Usuario</label><input type="text" id="regUser" required autocomplete="off">
+    <label>Contraseña (mínimo 8 caracteres, letras y números)</label><input type="password" id="regPass" required>
+    <label>Confirmar contraseña</label><input type="password" id="regPass2" required>
+    <div id="regError" class="error-text hidden"></div>
+    <label style="display:flex;gap:.5rem;align-items:center;font-weight:400;"><input type="checkbox" id="regTerms" style="width:auto;" required> Acepto los <a href="#" onclick="showScreen('terms');return false;">Términos y Condiciones</a></label>
+    <button type="submit">Crear cuenta</button>
+  </form>
+</section>
+
+<section id="screen-client-menu" class="card-panel hidden">
+  <div class="top-actions"><h2>Panel de Servicios</h2><button class="secondary" onclick="showScreen('role')">Regresar</button></div>
+  <div class="grid2">
+    <div class="option-card" onclick="startBooking('Masajes')"><h3>Masajes Terapéuticos</h3><p class="muted">Descontracturante, deportivo o relajante.</p></div>
+    <div class="option-card" onclick="startBooking('Barras de Access')"><h3>Barras de Access</h3><p class="muted">Liberación de bloqueos mentales.</p></div>
+    <div class="option-card" onclick="startBooking('Constelaciones Familiares')"><h3>Constelaciones Familiares</h3><p class="muted">Orden y sanación sistémica.</p></div>
+    <div class="option-card" onclick="showScreen('tour')"><h3>Giras a tu Ciudad</h3><p class="muted">Solicita que vayamos a tu localidad.</p></div>
+  </div>
+</section>
+
+<section id="screen-form" class="card-panel hidden">
+  <div class="top-actions"><h2 id="form-title">Cuestionario Previo</h2><button class="secondary" onclick="showScreen('client-menu')">Cancelar</button></div>
+  <form id="bookingForm" onsubmit="submitBooking(event)">
+    <label>Terapeuta</label><select id="therapistSelect" onchange="onTherapistOrServiceChange()" required></select>
+    <label>Fecha (mínimo 24 h de anticipación)</label><select id="dateSelect" onchange="renderTimeSlots()" required></select>
+    <label>Horario disponible</label>
+    <div class="slots" id="timeSlots"><p class="muted">Elige primero terapeuta y fecha.</p></div>
+    <label>Tu Nombre Completo</label><input type="text" id="clientName" required>
+    <label>Correo Electrónico</label><input type="email" id="clientEmail" required>
+    <div id="dynamic-questions"></div>
+    <label style="display:flex;gap:.5rem;align-items:center;font-weight:400;"><input type="checkbox" id="bookingTerms" style="width:auto;" required> Acepto los <a href="#" onclick="showScreen('terms');return false;">Términos y Condiciones</a></label>
+    <button type="submit">Confirmar Cita</button>
+  </form>
+</section>
+
+<section id="screen-confirmation" class="card-panel hidden">
+  <h2>¡Cita agendada!</h2>
+  <p id="confirmMessage"></p>
+  <div class="summary-box" id="confirmDetails"></div>
+  <a id="confirmWhatsappBtn" href="#" target="_blank" rel="noopener" class="hidden"><button type="button">Confirmar por WhatsApp</button></a>
+  <button class="secondary" onclick="showScreen('client-menu')">Volver al inicio</button>
+</section>
+
+<section id="screen-tour" class="card-panel hidden">
+  <div class="top-actions"><h2>Solicitar Gira o Contratación Foránea</h2><button class="secondary" onclick="showScreen('client-menu')">Regresar</button></div>
+  <form onsubmit="submitTour(event)">
+    <label>Tu Nombre</label><input type="text" id="tourName" required>
+    <label>Ciudad y País</label><input type="text" id="tourCity" required>
+    <label>Número aproximado de interesados</label><input type="number" id="tourCount" min="1" required>
+    <label>Comentarios o espacio disponible</label><textarea id="tourComments"></textarea>
+    <button type="submit">Enviar Solicitud de Gira</button>
+  </form>
+</section>
+
+<section id="screen-terms" class="card-panel hidden">
+  <div class="top-actions"><h2>Términos y Condiciones</h2><button class="secondary" onclick="showScreen('role')">Cerrar</button></div>
+  <div class="legal">
+    <p><em>Este texto es una plantilla general de referencia y no constituye asesoría legal. Se recomienda su revisión y adecuación por un abogado certificado en México antes de usarse de forma vinculante.</em></p>
+    <h4>1. Naturaleza de los servicios</h4>
+    <p>Los servicios ofrecidos por Mahō Terapias (masaje terapéutico, deportivo, Access Bars®, constelaciones familiares y disciplinas afines) son de carácter complementario y de bienestar. No sustituyen diagnóstico, tratamiento ni supervisión médica o psicológica profesional.</p>
+    <h4>2. Responsabilidad del cliente</h4>
+    <p>El cliente se compromete a proporcionar información veraz sobre su estado de salud, lesiones, embarazo, cirugías recientes o cualquier condición relevante. Mahō Terapias y su personal no serán responsables por reacciones adversas derivadas de información omitida o inexacta.</p>
+    <h4>3. Limitación de responsabilidad</h4>
+    <p>Mahō Terapias, su personal terapéutico y esta plataforma no garantizan resultados específicos y no serán responsables por daños indirectos derivados del uso de los servicios, salvo negligencia comprobada conforme a la legislación aplicable.</p>
+    <h4>4. Relación con los terapeutas</h4>
+    <p>Los terapeutas que operan bajo esta plataforma prestan sus servicios de forma profesional e independiente; su vinculación específica con Mahō Terapias (laboral, de colaboración o afiliación) se rige por los acuerdos particulares que cada uno tenga suscritos, y no por este aviso.</p>
+    <h4>5. Cancelaciones</h4>
+    <p>Las citas deben agendarse con un mínimo de 24 horas de anticipación. Cancelaciones o cambios deberán notificarse con la misma anticipación cuando sea posible.</p>
+    <h4>6. Privacidad y datos personales</h4>
+    <p>Los datos personales y de salud capturados se usan únicamente para la prestación del servicio, conforme a la Ley Federal de Protección de Datos Personales en Posesión de los Particulares. Esta plataforma almacena la información en el propio dispositivo del usuario; el responsable del tratamiento debe emitir su Aviso de Privacidad conforme a dicha ley.</p>
+    <h4>7. Cuentas de personal y contraseñas</h4>
+    <p>Cada usuario de personal es responsable de la confidencialidad de su contraseña y de la actividad realizada con su cuenta. Debe notificar de inmediato cualquier uso no autorizado.</p>
+    <h4>8. Menores de edad</h4>
+    <p>La atención a menores de edad requiere consentimiento expreso y presencia de madre, padre o tutor legal.</p>
+    <h4>9. Aceptación</h4>
+    <p>El uso de esta plataforma o la creación de una cuenta implica la aceptación de estos términos.</p>
+  </div>
+</section>
+
+<section id="screen-staff" class="card-panel hidden">
+  <div class="top-actions">
+    <h2 id="staffHeader"></h2>
+    <div><button class="secondary" onclick="showScreen('change-password')">Cambiar contraseña</button><button class="secondary" onclick="logout()">Cerrar sesión</button></div>
+  </div>
+  <div class="tabs" id="staffTabs"></div>
+
+  <div id="panel-availability" class="hidden">
+    <h3>Mi disponibilidad</h3>
+    <label>Días que atiendo</label><div class="day-toggle" id="dayToggle"></div>
+    <div class="grid2"><div><label>Hora de inicio</label><input type="time" id="availStart"></div><div><label>Hora de fin</label><input type="time" id="availEnd"></div></div>
+    <label>Duración de cada sesión (minutos)</label><input type="number" id="slotDuration" min="15" step="15">
+    <button onclick="saveAvailability()">Guardar disponibilidad</button>
+  </div>
+  <div id="panel-bookings" class="hidden"><h3>Citas</h3><div id="admin-bookings"></div></div>
+  <div id="panel-tours" class="hidden"><h3>Solicitudes de gira</h3><div id="admin-tours"></div></div>
+  <div id="panel-users" class="hidden">
+    <h3>Personal registrado</h3>
+    <div id="usersList"></div>
+    <div id="capacityControls"></div>
+  </div>
+</section>
+
+<section id="screen-change-password" class="card-panel hidden">
+  <div class="top-actions"><h2>Cambiar contraseña</h2><button class="secondary" onclick="showScreen('staff')">Regresar</button></div>
+  <form onsubmit="doChangePassword(event)">
+    <label>Contraseña actual</label><input type="password" id="cpCurrent" required>
+    <label>Nueva contraseña (mínimo 8 caracteres, letras y números)</label><input type="password" id="cpNew" required>
+    <label>Confirmar nueva contraseña</label><input type="password" id="cpNew2" required>
+    <div id="cpError" class="error-text hidden"></div>
+    <button type="submit">Actualizar contraseña</button>
+  </form>
+</section>
+
+</div>
+<footer>Los datos se guardan únicamente en este dispositivo/navegador (modo sin conexión). <a href="#" onclick="showScreen('terms');return false;">Términos y Condiciones</a></footer>
+
+<script>
+const K_USERS='ct_users', K_BOOK='ct_bookings', K_TOUR='ct_tours', K_SET='ct_settings';
+const DAY_NAMES=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+const PWD_RE=/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z0-9]{8,}$/;
+const ADMIN_CAP=1, THERAPIST_CAP_DEFAULT=5, THERAPIST_CAP_MAX=100;
+
+function load(key,fb){try{const r=localStorage.getItem(key);return r?JSON.parse(r):fb;}catch(e){return fb;}}
+function save(key,val){try{localStorage.setItem(key,JSON.stringify(val));return true;}catch(e){console.error(e);return false;}}
+
+let users=load(K_USERS,[]);
+let bookings=load(K_BOOK,[]);
+let tours=load(K_TOUR,[]);
+let settings=load(K_SET,{therapistCap:THERAPIST_CAP_DEFAULT,superWhatsapp:''});
+let currentUser=null;
+let selectedTime=null, currentService='';
+
+async function sha256(text){
+  const buf=await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+function escapeHtml(str){return String(str??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+function showScreen(name){
+  ['role','setup-super','staff-auth','client-menu','form','tour','terms','staff','change-password','confirmation'].forEach(s=>{
+    document.getElementById('screen-'+s).classList.add('hidden');
+  });
+  document.getElementById('screen-'+name).classList.remove('hidden');
+}
+function goStaffEntry(){
+  const hasSuper=users.some(u=>u.role==='super');
+  showScreen(hasSuper?'staff-auth':'setup-super');
+  if(hasSuper) switchAuthTab('login');
+}
+function switchAuthTab(tab){
+  document.getElementById('loginForm').classList.toggle('hidden', tab!=='login');
+  document.getElementById('registerForm').classList.toggle('hidden', tab!=='register');
+  document.getElementById('tabLoginBtn').classList.toggle('active', tab==='login');
+  document.getElementById('tabRegisterBtn').classList.toggle('active', tab==='register');
+  if(tab==='register') updateCapacityNote();
+}
+function updateCapacityNote(){
+  const role=document.getElementById('regRole').value;
+  const note=document.getElementById('capNote');
+  if(role==='admin'){
+    const n=users.filter(u=>u.role==='admin').length;
+    note.innerText=`Cupo de administrador: ${n}/${ADMIN_CAP}`;
+  }else{
+    const n=users.filter(u=>u.role==='terapeuta').length;
+    note.innerText=`Cupo de terapeutas: ${n}/${settings.therapistCap}`;
+  }
+}
+
+async function createSuperUser(e){
+  e.preventDefault();
+  const err=document.getElementById('suError'); err.classList.add('hidden');
+  if(users.some(u=>u.role==='super')){ err.innerText='Ya existe un súper usuario.'; err.classList.remove('hidden'); return; }
+  const name=document.getElementById('suName').value.trim();
+  const username=document.getElementById('suUser').value.trim();
+  const pass=document.getElementById('suPass').value, pass2=document.getElementById('suPass2').value;
+  if(!PWD_RE.test(pass)){ err.innerText='La contraseña debe ser alfanumérica (letras y números) de al menos 8 caracteres.'; err.classList.remove('hidden'); return; }
+  if(pass!==pass2){ err.innerText='Las contraseñas no coinciden.'; err.classList.remove('hidden'); return; }
+  if(users.some(u=>u.username.toLowerCase()===username.toLowerCase())){ err.innerText='Ese usuario ya existe.'; err.classList.remove('hidden'); return; }
+  const passwordHash=await sha256(pass);
+  users.push({id:'u_'+Date.now(),role:'super',name,username,passwordHash});
+  save(K_USERS,users);
+  alert('Súper usuario creado. Ahora puedes iniciar sesión.');
+  showScreen('staff-auth'); switchAuthTab('login');
+}
+
+async function doLogin(e){
+  e.preventDefault();
+  const err=document.getElementById('loginError'); err.classList.add('hidden');
+  const username=document.getElementById('loginUser').value.trim();
+  const pass=document.getElementById('loginPass').value;
+  const hash=await sha256(pass);
+  const user=users.find(u=>u.username.toLowerCase()===username.toLowerCase() && u.passwordHash===hash);
+  if(!user){ err.innerText='Usuario o contraseña incorrectos.'; err.classList.remove('hidden'); return; }
+  currentUser=user;
+  document.getElementById('loginForm').reset();
+  openStaffPanel();
+}
+async function doRegister(e){
+  e.preventDefault();
+  const err=document.getElementById('regError'); err.classList.add('hidden');
+  const role=document.getElementById('regRole').value;
+  const name=document.getElementById('regName').value.trim();
+  const username=document.getElementById('regUser').value.trim();
+  const pass=document.getElementById('regPass').value, pass2=document.getElementById('regPass2').value;
+  if(role==='admin' && users.filter(u=>u.role==='admin').length>=ADMIN_CAP){ err.innerText='El cupo de administrador ya está lleno.'; err.classList.remove('hidden'); return; }
+  if(role==='terapeuta' && users.filter(u=>u.role==='terapeuta').length>=settings.therapistCap){ err.innerText='El cupo de terapeutas está lleno. Pide al súper usuario que lo amplíe.'; err.classList.remove('hidden'); return; }
+  if(!PWD_RE.test(pass)){ err.innerText='La contraseña debe ser alfanumérica (letras y números) de al menos 8 caracteres.'; err.classList.remove('hidden'); return; }
+  if(pass!==pass2){ err.innerText='Las contraseñas no coinciden.'; err.classList.remove('hidden'); return; }
+  if(users.some(u=>u.username.toLowerCase()===username.toLowerCase())){ err.innerText='Ese usuario ya existe.'; err.classList.remove('hidden'); return; }
+  const passwordHash=await sha256(pass);
+  const newUser={id:'u_'+Date.now(),role,name,username,passwordHash};
+  if(role==='terapeuta'){ newUser.days=[1,2,3,4,5]; newUser.startTime='09:00'; newUser.endTime='18:00'; newUser.slotDuration=60; }
+  users.push(newUser); save(K_USERS,users);
+  alert('Cuenta creada. Ahora puedes iniciar sesión.');
+  document.getElementById('registerForm').reset();
+  switchAuthTab('login');
+}
+function logout(){ currentUser=null; showScreen('role'); }
+
+async function doChangePassword(e){
+  e.preventDefault();
+  const err=document.getElementById('cpError'); err.classList.add('hidden');
+  const cur=document.getElementById('cpCurrent').value, n1=document.getElementById('cpNew').value, n2=document.getElementById('cpNew2').value;
+  const curHash=await sha256(cur);
+  if(curHash!==currentUser.passwordHash){ err.innerText='La contraseña actual no es correcta.'; err.classList.remove('hidden'); return; }
+  if(!PWD_RE.test(n1)){ err.innerText='La nueva contraseña debe ser alfanumérica de al menos 8 caracteres.'; err.classList.remove('hidden'); return; }
+  if(n1!==n2){ err.innerText='Las contraseñas nuevas no coinciden.'; err.classList.remove('hidden'); return; }
+  currentUser.passwordHash=await sha256(n1);
+  const idx=users.findIndex(u=>u.id===currentUser.id); users[idx]=currentUser; save(K_USERS,users);
+  alert('Contraseña actualizada.');
+  document.querySelector('#screen-change-password form').reset();
+  showScreen('staff');
+}
+
+function openStaffPanel(){
+  showScreen('staff');
+  const roleLabel={super:'Súper Usuario',admin:'Administrador',terapeuta:'Terapeuta'}[currentUser.role];
+  document.getElementById('staffHeader').innerText=`${currentUser.name} · ${roleLabel}`;
+  const tabs=document.getElementById('staffTabs'); tabs.innerHTML='';
+  const tabDefs=[];
+  if(currentUser.role==='terapeuta') tabDefs.push(['availability','Mi disponibilidad'],['bookings','Mis citas']);
+  if(currentUser.role==='admin') tabDefs.push(['bookings','Citas'],['tours','Giras'],['users','Terapeutas']);
+  if(currentUser.role==='super') tabDefs.push(['users','Usuarios'],['bookings','Citas'],['tours','Giras']);
+  tabDefs.forEach(([key,label],i)=>{
+    const b=document.createElement('button'); b.className='tab-btn'+(i===0?' active':''); b.innerText=label;
+    b.onclick=()=>selectStaffTab(key,b); tabs.appendChild(b);
+  });
+  selectStaffTab(tabDefs[0][0]);
+}
+function selectStaffTab(key,btnEl){
+  ['availability','bookings','tours','users'].forEach(p=>document.getElementById('panel-'+p).classList.add('hidden'));
+  document.getElementById('panel-'+key).classList.remove('hidden');
+  if(btnEl){ document.querySelectorAll('#staffTabs .tab-btn').forEach(b=>b.classList.remove('active')); btnEl.classList.add('active'); }
+  if(key==='availability') renderAvailability();
+  if(key==='bookings') renderBookingsPanel();
+  if(key==='tours') renderToursPanel();
+  if(key==='users') renderUsersPanel();
+}
+
+function renderAvailability(){
+  const t=currentUser;
+  document.getElementById('dayToggle').innerHTML=DAY_NAMES.map((label,idx)=>
+    `<div class="day-chip ${t.days.includes(idx)?'active':''}" data-day="${idx}" onclick="this.classList.toggle('active')">${label}</div>`).join('');
+  document.getElementById('availStart').value=t.startTime;
+  document.getElementById('availEnd').value=t.endTime;
+  document.getElementById('slotDuration').value=t.slotDuration;
+}
+function saveAvailability(){
+  const activeDays=Array.from(document.querySelectorAll('.day-chip.active')).map(d=>Number(d.dataset.day));
+  const start=document.getElementById('availStart').value, end=document.getElementById('availEnd').value;
+  const dur=Number(document.getElementById('slotDuration').value);
+  if(activeDays.length===0){ alert('Selecciona al menos un día de atención.'); return; }
+  if(!start||!end||start>=end){ alert('Revisa el horario de inicio y fin.'); return; }
+  if(!dur||dur<15){ alert('La duración de sesión debe ser de al menos 15 minutos.'); return; }
+  currentUser.days=activeDays; currentUser.startTime=start; currentUser.endTime=end; currentUser.slotDuration=dur;
+  const idx=users.findIndex(u=>u.id===currentUser.id); users[idx]=currentUser; save(K_USERS,users);
+  alert('Disponibilidad guardada.');
+}
+
+function renderBookingsPanel(){
+  let list = currentUser.role==='terapeuta' ? bookings.filter(b=>b.therapistId===currentUser.id) : bookings.slice();
+  list.sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+  document.getElementById('admin-bookings').innerHTML = list.length===0 ? '<p class="muted">No hay citas registradas.</p>' :
+    list.map(b=>`<div class="summary-box"><strong>${escapeHtml(b.service)}</strong> <span class="pill">${b.date} · ${b.time}</span><br>
+      Terapeuta: ${escapeHtml(b.therapistName)}<br>Cliente: ${escapeHtml(b.clientName)} (${escapeHtml(b.clientEmail)})<br>
+      Respuestas: ${b.answers.map(escapeHtml).join(' | ')}</div>`).join('');
+}
+function renderToursPanel(){
+  document.getElementById('admin-tours').innerHTML = tours.length===0 ? '<p class="muted">No hay solicitudes de gira.</p>' :
+    tours.map(t=>`<div class="summary-box"><strong>${escapeHtml(t.name)}</strong> — ${escapeHtml(t.city)}<br>Interesados: ${escapeHtml(String(t.count))}<br>${escapeHtml(t.comments||'')}</div>`).join('');
+}
+function renderUsersPanel(){
+  const list = currentUser.role==='super' ? users.filter(u=>u.role!=='super') : users.filter(u=>u.role==='terapeuta');
+  document.getElementById('usersList').innerHTML = list.length===0 ? '<p class="muted">Sin registros.</p>' :
+    list.map(u=>{
+      const canManage = currentUser.role==='super';
+      return `<div class="summary-box"><strong>${escapeHtml(u.name)}</strong> <span class="pill">${u.role}</span> — usuario: ${escapeHtml(u.username)}
+        ${u.role==='terapeuta'? `<br>Días: ${u.days.map(d=>DAY_NAMES[d]).join(', ')} · ${u.startTime}-${u.endTime} (${u.slotDuration} min)`:''}
+        ${canManage?`<br><button class="danger" onclick="deleteUser('${u.id}')">Eliminar cuenta</button>`:''}</div>`;
+    }).join('');
+  const capDiv=document.getElementById('capacityControls'); capDiv.innerHTML='';
+  if(currentUser.role==='super'){
+    const used=users.filter(u=>u.role==='terapeuta').length;
+    capDiv.innerHTML=`<h3 style="margin-top:1.4rem;">Cupo de terapeutas</h3>
+      <p class="muted">${used} / ${settings.therapistCap} (máximo ${THERAPIST_CAP_MAX})</p>
+      <div class="cap-bar"><div class="cap-fill" style="width:${Math.min(100,used/settings.therapistCap*100)}%"></div></div>
+      <label>Ampliar cupo hasta</label>
+      <input type="number" id="capInput" min="${Math.max(used,THERAPIST_CAP_DEFAULT)}" max="${THERAPIST_CAP_MAX}" value="${settings.therapistCap}">
+      <button onclick="updateCap()">Actualizar cupo</button>
+      <h3 style="margin-top:1.4rem;">WhatsApp para confirmaciones</h3>
+      <p class="muted">Número con código de país, sin espacios ni signos (ej. 5216141234567). Al terminar de agendar, el cliente verá un botón para enviarte por WhatsApp los datos de su cita.</p>
+      <input type="text" id="waInput" value="${settings.superWhatsapp||''}" placeholder="5216141234567">
+      <button onclick="updateWhatsapp()">Guardar número</button>`;
+  }
+}
+function updateWhatsapp(){
+  const v=document.getElementById('waInput').value.replace(/\D/g,'');
+  if(!v){ alert('Ingresa un número válido con código de país.'); return; }
+  settings.superWhatsapp=v; save(K_SET,settings); alert('Número guardado.');
+}
+function updateCap(){
+  const v=Number(document.getElementById('capInput').value);
+  const used=users.filter(u=>u.role==='terapeuta').length;
+  if(v<used){ alert('No puede ser menor al número de terapeutas ya registrados.'); return; }
+  if(v>THERAPIST_CAP_MAX){ alert('El máximo permitido es '+THERAPIST_CAP_MAX+'.'); return; }
+  settings.therapistCap=v; save(K_SET,settings); renderUsersPanel();
+}
+function deleteUser(id){
+  if(!confirm('¿Eliminar esta cuenta? Esta acción no se puede deshacer.')) return;
+  users=users.filter(u=>u.id!==id); save(K_USERS,users); renderUsersPanel();
+}
+
+function populateTherapistSelect(){
+  const sel=document.getElementById('therapistSelect');
+  const list=users.filter(u=>u.role==='terapeuta');
+  sel.innerHTML='<option value="">Selecciona...</option>'+list.map(t=>`<option value="${t.id}">${escapeHtml(t.name)}</option>`).join('');
+}
+function startBooking(service){
+  currentService=service; selectedTime=null; showScreen('form');
+  document.getElementById('form-title').innerText=`Cuestionario: ${service}`;
+  populateTherapistSelect();
+  document.getElementById('dateSelect').innerHTML='<option value="">Elige terapeuta primero</option>';
+  document.getElementById('timeSlots').innerHTML='<p class="muted">Elige primero terapeuta y fecha.</p>';
+  renderQuestions(service);
+}
+function onTherapistOrServiceChange(){
+  const tId=document.getElementById('therapistSelect').value;
+  const dateSel=document.getElementById('dateSelect'); selectedTime=null;
+  if(!tId){ dateSel.innerHTML='<option value="">Elige terapeuta primero</option>'; return; }
+  const therapist=users.find(u=>u.id===tId);
+  const options=getAvailableDates(therapist,30);
+  dateSel.innerHTML = options.length===0 ? '<option value="">Sin fechas disponibles próximamente</option>' :
+    '<option value="">Selecciona fecha...</option>'+options.map(d=>`<option value="${d.iso}">${d.label}</option>`).join('');
+  document.getElementById('timeSlots').innerHTML='<p class="muted">Elige una fecha para ver horarios.</p>';
+}
+function getAvailableDates(therapist,daysAhead){
+  const result=[]; if(!therapist) return result;
+  const now=new Date(); const minTime=new Date(now.getTime()+24*60*60*1000);
+  for(let i=0;i<=daysAhead;i++){
+    const d=new Date(now.getFullYear(),now.getMonth(),now.getDate()+i);
+    if(!therapist.days.includes(d.getDay())) continue;
+    const [endH,endM]=therapist.endTime.split(':').map(Number);
+    const dayEnd=new Date(d.getFullYear(),d.getMonth(),d.getDate(),endH,endM);
+    if(dayEnd<minTime) continue;
+    result.push({iso:toISODate(d),label:d.toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long'})});
+  }
+  return result;
+}
+function toISODate(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function renderTimeSlots(){
+  selectedTime=null;
+  const tId=document.getElementById('therapistSelect').value, dateIso=document.getElementById('dateSelect').value;
+  const container=document.getElementById('timeSlots');
+  if(!tId||!dateIso){ container.innerHTML='<p class="muted">Elige terapeuta y fecha.</p>'; return; }
+  const therapist=users.find(u=>u.id===tId);
+  const slots=buildSlotsForDay(therapist);
+  const minTime=new Date(Date.now()+24*60*60*1000);
+  const bookedSet=new Set(bookings.filter(b=>b.therapistId===tId && b.date===dateIso).map(b=>b.time));
+  if(slots.length===0){ container.innerHTML='<p class="muted">No hay horarios configurados.</p>'; return; }
+  container.innerHTML='';
+  slots.forEach(time=>{
+    const isPast=new Date(dateIso+'T'+time)<minTime, isBooked=bookedSet.has(time);
+    const btn=document.createElement('button'); btn.type='button'; btn.className='slot-btn'; btn.innerText=time;
+    if(isPast||isBooked){ btn.disabled=true; }
+    else btn.onclick=()=>{ document.querySelectorAll('.slot-btn').forEach(b=>b.classList.remove('selected')); btn.classList.add('selected'); selectedTime=time; };
+    container.appendChild(btn);
+  });
+}
+function buildSlotsForDay(therapist){
+  const slots=[]; const [sh,sm]=therapist.startTime.split(':').map(Number); const [eh,em]=therapist.endTime.split(':').map(Number);
+  const dur=Number(therapist.slotDuration)||60; let cur=sh*60+sm; const end=eh*60+em;
+  while(cur+dur<=end){ slots.push(String(Math.floor(cur/60)).padStart(2,'0')+':'+String(cur%60).padStart(2,'0')); cur+=dur; }
+  return slots;
+}
+function renderQuestions(service){
+  const c=document.getElementById('dynamic-questions');
+  if(service==='Masajes'){
+    c.innerHTML=`<label>Nivel de dolor o molestia actual (1 al 10)</label><input type="number" min="1" max="10" required>
+      <label>¿Lesión diagnosticada, cirugía reciente o inflamación aguda?</label><input type="text" required>
+      <label>¿Qué zona acumula mayor tensión en su día a día?</label><input type="text" required>
+      <label>¿Actividad física frecuente o trabajo sedentario?</label><input type="text" required>
+      <label>¿Busca un enfoque relajante o de recuperación profunda?</label><input type="text" required>`;
+  }else if(service==='Barras de Access'){
+    c.innerHTML=`<label>¿Qué área de su vida experimenta mayor saturación mental o estrés hoy?</label><textarea required></textarea>`;
+  }else{
+    c.innerHTML=`<label>¿Cuál es el conflicto principal a ordenar (pareja, éxito, familia de origen)?</label><input type="text" required>
+      <label>¿Ha identificado patrones repetitivos o lealtades en su historia familiar?</label><input type="text" required>
+      <label>Grado de apertura emocional para trabajar en dinámica sistémica</label>
+      <select required><option value="">Seleccione...</option><option value="Alto">Alto - Dispuesto a mirar con profundidad</option><option value="Moderado">Moderado - Prefiero ir paso a paso</option></select>`;
+  }
+}
+function submitBooking(e){
+  e.preventDefault();
+  const tId=document.getElementById('therapistSelect').value, dateIso=document.getElementById('dateSelect').value;
+  if(!tId||!dateIso||!selectedTime){ alert('Selecciona terapeuta, fecha y horario.'); return; }
+  const therapist=users.find(u=>u.id===tId);
+  const name=document.getElementById('clientName').value, email=document.getElementById('clientEmail').value;
+  const inputs=document.querySelectorAll('#dynamic-questions input, #dynamic-questions textarea, #dynamic-questions select');
+  const answers=Array.from(inputs).map(i=>i.value);
+  bookings.push({id:'b_'+Date.now(),service:currentService,therapistId:tId,therapistName:therapist.name,date:dateIso,time:selectedTime,clientName:name,clientEmail:email,answers});
+  save(K_BOOK,bookings);
+  document.getElementById('bookingForm').reset();
+  showBookingConfirmation({service:currentService,therapistName:therapist.name,date:dateIso,time:selectedTime,clientName:name,clientEmail:email});
+}
+function showBookingConfirmation(d){
+  showScreen('confirmation');
+  document.getElementById('confirmMessage').innerText='Ya se agendó tu sesión. Nuestro equipo te estará contactando para confirmarla.';
+  document.getElementById('confirmDetails').innerHTML=`<strong>${escapeHtml(d.service)}</strong> con ${escapeHtml(d.therapistName)}<br>${d.date} · ${d.time}<br>${escapeHtml(d.clientName)} (${escapeHtml(d.clientEmail)})`;
+  const btn=document.getElementById('confirmWhatsappBtn');
+  if(settings.superWhatsapp){
+    const text=encodeURIComponent(`Nueva cita agendada:\nServicio: ${d.service}\nTerapeuta: ${d.therapistName}\nFecha: ${d.date} ${d.time}\nCliente: ${d.clientName} (${d.clientEmail})\nPor favor confirmar.`);
+    btn.href=`https://wa.me/${settings.superWhatsapp}?text=${text}`;
+    btn.classList.remove('hidden');
+  }else{
+    btn.classList.add('hidden');
+  }
+}
+function submitTour(e){
+  e.preventDefault();
+  tours.push({id:'tour_'+Date.now(),name:document.getElementById('tourName').value,city:document.getElementById('tourCity').value,count:document.getElementById('tourCount').value,comments:document.getElementById('tourComments').value});
+  save(K_TOUR,tours);
+  alert('¡Solicitud de gira enviada con éxito!');
+  e.target.reset(); showScreen('client-menu');
+}
+</script>
+</body>
+</html>
